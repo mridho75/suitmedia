@@ -1,11 +1,11 @@
-'use client';
-
+"use client";
 /**
  * IdeasList component: displays a paginated, sortable list of ideas with lazy-loaded images
  * Supports state persistence via URL query parameters
  */
 
 import React, { useEffect, useState, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import '../app/globals.css';
 import Image from 'next/image';
 
@@ -27,32 +27,22 @@ type Idea = {
   medium_image?: { url: string };
 };
 
-// Helper to get query param from URL or fallback value
-function getQueryParam<T>(param: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
-  const url = new URL(window.location.href);
-  const value = url.searchParams.get(param);
-  if (!value) return fallback;
-  if (typeof fallback === 'number') return Number(value) as T;
-  return value as T;
-}
+export default function IdeasList() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const page = parseInt(searchParams?.get('page') || '1');
+  const size = parseInt(searchParams?.get('size') || '10');
+  const sort = searchParams?.get('sort') || '-published_at';
 
-interface IdeasListProps {
-  initialPage?: number;
-  initialSize?: number;
-  initialSort?: string;
-}
-
-export default function IdeasList({ initialPage = 1, initialSize = 10, initialSort = '-published_at' }: IdeasListProps) {
   // State variables for ideas data, pagination, sorting, and loading
   const [ideas, setIdeas] = useState<Idea[]>([]);
-  const [page, setPage] = useState<number>(initialPage);
-  const [size, setSize] = useState<number>(initialSize);
-  const [sort, setSort] = useState<string>(initialSort);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
+  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
+  const sizeDropdownRef = useRef<HTMLDivElement>(null);
+
   // Close sort dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -67,13 +57,10 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
     }
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showSortDropdown]);
-  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-  const sizeDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Fetch ideas data
   useEffect(() => {
     setLoading(true);
-    // Fetch ideas data from API with current pagination and sorting
     fetch(`/api/ideas?page[number]=${page}&page[size]=${size}&append[]=small_image&append[]=medium_image&sort=${sort}`)
       .then((res) => res.json())
       .then((data) => {
@@ -81,12 +68,16 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
         setTotal(data.meta?.total || 0);
         setLoading(false);
       });
-    // Update URL query params to persist state (client only)
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams({ page: String(page), size: String(size), sort });
-      window.history.replaceState({}, '', `?${params.toString()}`);
-    }
   }, [page, size, sort]);
+
+  // Update URL query params when page/size/sort changes
+  const updateParams = (newParams: Partial<{ page: number; size: number; sort: string }>) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (newParams.page !== undefined) params.set('page', String(newParams.page));
+    if (newParams.size !== undefined) params.set('size', String(newParams.size));
+    if (newParams.sort !== undefined) params.set('sort', newParams.sort);
+    router.replace('?' + params.toString());
+  };
 
   return (
     <div>
@@ -108,7 +99,7 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
               >
                 {size}
                 <span className="selectChevron">
-                  <img src="/chevron-down.svg" alt="Chevron" width={22} height={22} />
+                  <Image src="/chevron-down.svg" alt="Chevron" width={22} height={22} />
                 </span>
               </button>
               <ul
@@ -124,7 +115,7 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
                     role="option"
                     aria-selected={s === size}
                     onClick={() => {
-                      setSize(s);
+                      updateParams({ size: s, page: 1 });
                       setShowSizeDropdown(false);
                     }}
                   >
@@ -146,7 +137,7 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
               >
                 {sortOptions.find(opt => opt.value === sort)?.label}
                 <span className="selectChevron">
-                  <img src="/chevron-down.svg" alt="Chevron" width={22} height={22} />
+                  <Image src="/chevron-down.svg" alt="Chevron" width={22} height={22} />
                 </span>
               </button>
               <ul
@@ -162,7 +153,7 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
                     role="option"
                     aria-selected={opt.value === sort}
                     onClick={() => {
-                      setSort(opt.value);
+                      updateParams({ sort: opt.value, page: 1 });
                       setShowSortDropdown(false);
                     }}
                   >
@@ -210,10 +201,10 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
       </div>
       {/* Pagination controls */}
       <div className="pagination">
-        <button className="paginationNav" disabled={page === 1} onClick={() => setPage(1)} aria-label="First page">
+        <button className="paginationNav" disabled={page === 1} onClick={() => updateParams({ page: 1 })} aria-label="First page">
           &laquo;
         </button>
-        <button className="paginationNav" disabled={page === 1} onClick={() => setPage(page - 1)} aria-label="Previous page">
+        <button className="paginationNav" disabled={page === 1} onClick={() => updateParams({ page: page - 1 })} aria-label="Previous page">
           &lsaquo;
         </button>
         {Array.from({ length: Math.min(5, Math.ceil(total / size)) }, (_, i) => {
@@ -222,17 +213,17 @@ export default function IdeasList({ initialPage = 1, initialSize = 10, initialSo
             <button
               key={pageNum}
               className={page === pageNum ? 'activePage' : 'pageButton'}
-              onClick={() => setPage(pageNum)}
+              onClick={() => updateParams({ page: pageNum })}
             >
               {pageNum}
             </button>
           );
         })}
         {Math.ceil(total / size) > 5 && <span className="paginationEllipsis">...</span>}
-        <button className="paginationNav" disabled={page === Math.ceil(total / size)} onClick={() => setPage(page + 1)} aria-label="Next page">
+        <button className="paginationNav" disabled={page === Math.ceil(total / size)} onClick={() => updateParams({ page: page + 1 })} aria-label="Next page">
           &rsaquo;
         </button>
-        <button className="paginationNav" disabled={page === Math.ceil(total / size)} onClick={() => setPage(Math.ceil(total / size))} aria-label="Last page">
+        <button className="paginationNav" disabled={page === Math.ceil(total / size)} onClick={() => updateParams({ page: Math.ceil(total / size) })} aria-label="Last page">
           &raquo;
         </button>
       </div>

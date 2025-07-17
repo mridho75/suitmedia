@@ -1,4 +1,4 @@
-'use client';
+// 'use client'; // Removed as per the requirement
 
 // IdeasPage component: main page for displaying ideas list with header and banner
 
@@ -7,7 +7,9 @@ import Banner from '../../components/Banner';
 import IdeasList from '../../components/IdeasList';
 import '../../app/globals.css';
 
-export default function IdeasPage() {
+
+ export default function IdeasPage() {
+  // Extract query params for SSR hydration
   return (
     <main className="main">
       {/* Header with active menu item */}
