@@ -2,6 +2,7 @@
 
 // IdeasPage component: main page for displaying ideas list with header and banner
 
+import { Suspense } from "react";
 import Header from '../../components/Header';
 import Banner from '../../components/Banner';
 import IdeasList from '../../components/IdeasList';
@@ -24,7 +25,9 @@ import '../../app/globals.css';
       </div>
       {/* Content section with ideas list */}
       <section className="contentSection">
-        <IdeasList />
+        <Suspense fallback={<div>Loading...</div>}>
+          <IdeasList />
+        </Suspense>
       </section>
     </main>
   );
