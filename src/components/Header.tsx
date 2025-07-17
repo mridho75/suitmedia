@@ -3,18 +3,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const menu = [
-  { name: 'Work', href: '/work' },
-  { name: 'About', href: '/about' },
-  { name: 'Services', href: '/services' },
+  { name: 'Work', href: '' },
+  { name: 'About', href: '' },
+  { name: 'Services', href: '' },
   { name: 'Ideas', href: '/ideas' },
-  { name: 'Careers', href: '/careers' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'Careers', href: '' },
+  { name: 'Contact', href: '' },
 ];
 
 export default function Header({ active }: { active: string }) {
   const [show, setShow] = useState(true);
   const [lastScroll, setLastScroll] = useState(0);
-  const [transparent, setTransparent] = useState(false);
+  const [transparent, setTransparent] = useState(true);
   const ticking = useRef(false);
 
   useEffect(() => {
@@ -22,12 +22,16 @@ export default function Header({ active }: { active: string }) {
       if (!ticking.current) {
         window.requestAnimationFrame(() => {
           const currentScroll = window.scrollY;
-          if (currentScroll > lastScroll && currentScroll > 80) {
+          if (currentScroll === 0) {
+            setTransparent(false); 
+            setShow(true);
+          } else if (currentScroll > lastScroll && currentScroll > 80) {
             setShow(false);
+            setTransparent(false); 
           } else {
             setShow(true);
+            setTransparent(true); 
           }
-          setTransparent(currentScroll < 80);
           setLastScroll(currentScroll);
           ticking.current = false;
         });
@@ -50,13 +54,12 @@ export default function Header({ active }: { active: string }) {
     >
       <nav className="nav">
         <div className="logo">
-          <Image src="/logo.png" alt="Suitmedia Logo" width={56} height={56} />
+          <Image src="/logo.png" alt="Suitmedia Logo" width={130} height={130} />
         </div>
         <ul className="menu">
           {menu.map((item) => (
-            <li key={item.name} className={active === item.name ? 'active' : ''}>
-              <Link href={item.href}>{item.name}</Link>
-              {active === item.name && <div className="menuUnderline" />}
+            <li key={item.name}>
+              <Link href={item.href} className={active === item.name ? 'active' : ''}>{item.name}</Link>
             </li>
           ))}
         </ul>

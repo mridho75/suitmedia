@@ -1,3 +1,232 @@
+.customDropdown {
+  position: relative;
+  display: inline-block;
+  min-width: 100px;
+}
+.dropdownButton {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 7px 38px 7px 20px;
+  font-size: 1.08rem;
+  color: #222;
+  outline: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  appearance: none;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(0.4,0,0.2,1);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  min-width: 64px;
+  position: relative;
+  z-index: 2;
+}
+.dropdownButton.open,
+.dropdownButton:focus,
+.dropdownButton:hover {
+  border: 1.5px solid #ff6600;
+  box-shadow: 0 4px 16px rgba(255,102,0,0.10);
+  transform: scale(1.04);
+  background: #fff;
+}
+.dropdownList {
+  position: absolute;
+  left: 0;
+  top: 110%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  min-width: 100%;
+  padding: 6px 0;
+  margin: 0;
+  list-style: none;
+  opacity: 0;
+  transform: translateY(-8px) scaleY(0.98);
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.4,0,0.2,1), transform 0.22s cubic-bezier(0.4,0,0.2,1);
+  z-index: 10;
+}
+.dropdownList.show {
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  pointer-events: auto;
+}
+.dropdownList li {
+  padding: 10px 28px 10px 24px;
+  font-size: 1.08rem;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.18s;
+  border: none;
+  background: none;
+  text-align: left;
+}
+.dropdownList li.selected,
+.dropdownList li:hover {
+  background: #f5f5f5;
+  color: #ff6600;
+}
+.selectWrapper select {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: border 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+.selectWrapper select:focus,
+.selectWrapper select:hover {
+  border: 1.5px solid #ff6600;
+  box-shadow: 0 4px 16px rgba(255,102,0,0.10);
+  transform: scale(1.04);
+  background: #fff;
+}
+.selectWrapper .selectChevron img {
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.selectWrapper select:focus + .selectChevron img,
+.selectWrapper select:hover + .selectChevron img {
+  transform: rotate(180deg) scale(1.08);
+}
+.selectGroup {
+  display: flex;
+  align-items: center;
+  margin-right: 24px;
+}
+.selectGroup label {
+  font-size: 1.08rem;
+  color: #7a7a7a;
+  margin-right: 8px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.controlsRight label {
+  font-size: 1rem;
+  color: #7a7a7a;
+  margin: 0 8px 0 0;
+}
+.controlsRight .selectWrapper,
+.controlsRight select {
+  margin-right: 16px;
+}
+.controlsRight select,
+.controlsRight .selectWrapper select {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 4px 24px 4px 12px;
+  font-size: 1rem;
+  color: #222;
+  outline: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  appearance: none;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+  min-width: 64px;
+  font-family: inherit;
+}
+.controlsRight select:focus,
+.controlsRight .selectWrapper select:focus {
+  border: 1.5px solid #ff6600;
+  box-shadow: 0 2px 8px rgba(255,102,0,0.08);
+}
+.controlsRight .selectWrapper {
+  position: relative;
+  display: inline-block;
+}
+.controlsRight .selectChevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+}
+.selectWrapper select {
+  padding-right: 32px !important;
+}
+.selectChevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+.listControls label {
+  font-size: 0.95rem;
+  color: #444;
+  margin-right: 6px;
+}
+.listControls select {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 4px 24px 4px 12px;
+  font-size: 1rem;
+  color: #222;
+  outline: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-right: 16px;
+  appearance: none;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.listControls select:focus {
+  border: 1.5px solid #ff6600;
+  box-shadow: 0 2px 8px rgba(255,102,0,0.08);
+}
+.controlsRight {
+  gap: 8px;
+}
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+html, body {
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+   margin: 0;
+  padding: 0;
+}
+/* Navbar/Menu Link Styles Override */
+.menu a {
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  padding: 0 0px;
+  display: inline-block;
+  width: 80px;
+  text-align: center;
+  transition: color 0.2s, font-weight 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.menu a:hover,
+.menu a.active {
+  color: #fff;
+  font-weight: 700;
+  transform: scale(1.13);
+}
+.menu a::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 2px;
+  opacity: 0;
+  transform: scaleX(0);
+  transition: opacity 0.25s cubic-bezier(0.4,0,0.2,1), transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.menu a.active::after,
+.menu a:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+
 
 /* Header Styles */
 .header {
@@ -11,7 +240,6 @@
   justify-content: center;
   box-sizing: border-box;
   background: #ed6327;
-  border-bottom: 1px solid #eee;
   z-index: 100;
   transition: top 0.3s, background 0.3s;
 }
@@ -21,9 +249,9 @@
 .headerHidden {
   top: -80px;
 }
-.headerTransparent {
-  background: #ff6600cc;
-  backdrop-filter: blur(8px);
+.header.headerTransparent {
+  background: #ff6600cc !important;
+  backdrop-filter: blur(8px) !important;
 }
 .nav {
   display: flex;
@@ -61,43 +289,34 @@
 .menu li:hover {
   color: #ffd699;
 }
-.active {
-  color: #fff;
-  font-weight: bold;
-  position: relative;
-}
-.menuUnderline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 3px;
-  background: #fff;
-  border-radius: 2px;
-}
+
 
 
 /* Banner Section */
 .banner {
   position: relative;
-  height: 320px;
+  height: 450px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto 32px auto;
-  background: #222;
-  border-radius: 0 0 32px 32px;
+  width: 100%; 
+  margin: 0 0 32px 0;
+  box-sizing: border-box;
 }
 .bannerImage {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
-  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
   will-change: transform;
   min-height: 320px;
+  width: 100%; 
+  background: #222;
+  box-sizing: border-box;
 }
 .bannerText {
   position: relative;
@@ -212,38 +431,78 @@
   margin-left: auto;
   margin-right: auto;
 }
+
 .pagination button {
   padding: 0.5rem 1rem;
   cursor: pointer;
-  margin: 0;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  margin: 0 2px;
+  border: none;
+  background: #fff;
+  border-radius: 8px;
+  color: #222;
+  font-size: 1rem;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .pagination button:hover:not(:disabled) {
-  background-color: #f0f0f0;
+  background: #f5f5f5;
+  color: #ff6600;
 }
 .pagination button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
-  border: none;
-  font-weight: bold;
+  opacity: 0.4;
+  background: #f5f5f5;
+  color: #bbb;
+  box-shadow: none;
 }
-.pagination span {
-  padding: 0 1rem;
-  font-weight: 500;
+.paginationNav {
+  background: #fff;
+  color: #bbb;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  min-width: 32px;
+  min-height: 32px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, color 0.18s;
+}
+.paginationNav:hover:not(:disabled) {
+  background: #f5f5f5;
+  color: #ff6600;
 }
 .activePage {
-  background: #ff6600;
-  color: #fff;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  border: none;
+  background: #ff6600 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
   font-weight: bold;
+  min-width: 32px;
+  min-height: 32px;
+  box-shadow: 0 2px 8px rgba(255,102,0,0.10);
+  font-size: 1rem;
+}
+.pageButton {
+  background: #fff;
+  color: #222;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-width: 32px;
+  min-height: 32px;
+  border: none;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
 }
 .paginationEllipsis {
   margin: 0 8px;
   font-weight: 500;
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
 }

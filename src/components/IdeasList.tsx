@@ -5,7 +5,7 @@
  * Supports state persistence via URL query parameters
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import '../app/globals.css';
 import Image from 'next/image';
 
@@ -37,15 +37,40 @@ function getQueryParam<T>(param: string, fallback: T): T {
   return value as T;
 }
 
-export default function IdeasList() {
+interface IdeasListProps {
+  initialPage?: number;
+  initialSize?: number;
+  initialSort?: string;
+}
+
+export default function IdeasList({ initialPage = 1, initialSize = 10, initialSort = '-published_at' }: IdeasListProps) {
   // State variables for ideas data, pagination, sorting, and loading
   const [ideas, setIdeas] = useState<Idea[]>([]);
-  const [page, setPage] = useState<number>(getQueryParam('page', 1));
-  const [size, setSize] = useState<number>(getQueryParam('size', 10));
-  const [sort, setSort] = useState<string>(getQueryParam('sort', '-published_at'));
+  const [page, setPage] = useState<number>(initialPage);
+  const [size, setSize] = useState<number>(initialSize);
+  const [sort, setSort] = useState<string>(initialSort);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+  // Close sort dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+        setShowSortDropdown(false);
+      }
+    }
+    if (showSortDropdown) {
+      document.addEventListener('mousedown', handleClick);
+    } else {
+      document.removeEventListener('mousedown', handleClick);
+    }
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showSortDropdown]);
+  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
+  const sizeDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown on outside click
   useEffect(() => {
     setLoading(true);
     // Fetch ideas data from API with current pagination and sorting
@@ -56,7 +81,7 @@ export default function IdeasList() {
         setTotal(data.meta?.total || 0);
         setLoading(false);
       });
-    // Update URL query params to persist state
+    // Update URL query params to persist state (client only)
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams({ page: String(page), size: String(size), sort });
       window.history.replaceState({}, '', `?${params.toString()}`);
@@ -71,14 +96,82 @@ export default function IdeasList() {
           <span>Showing {total === 0 ? '0' : `${size * (page - 1) + 1} - ${Math.min(size * page, total)}`} of {total}</span>
         </div>
         <div className="controlsRight">
-          <label htmlFor="showPerPage">Show per page:</label>
-          <select id="showPerPage" value={size} onChange={e => setSize(Number(e.target.value))}>
-            {pageSizes.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <label htmlFor="sortBy">Sort by:</label>
-          <select id="sortBy" value={sort} onChange={e => setSort(e.target.value)}>
-            {sortOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-          </select>
+          <span className="selectGroup">
+            <label>Show per page:</label>
+            <div className="customDropdown" ref={sizeDropdownRef}>
+              <button
+                type="button"
+                className={"dropdownButton" + (showSizeDropdown ? " open" : "")}
+                onClick={() => setShowSizeDropdown(v => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={showSizeDropdown}
+              >
+                {size}
+                <span className="selectChevron">
+                  <img src="/chevron-down.svg" alt="Chevron" width={22} height={22} />
+                </span>
+              </button>
+              <ul
+                className={"dropdownList" + (showSizeDropdown ? " show" : "")}
+                tabIndex={-1}
+                role="listbox"
+                style={{ pointerEvents: showSizeDropdown ? 'auto' : 'none' }}
+              >
+                {pageSizes.map(s => (
+                  <li
+                    key={s}
+                    className={s === size ? "selected" : ""}
+                    role="option"
+                    aria-selected={s === size}
+                    onClick={() => {
+                      setSize(s);
+                      setShowSizeDropdown(false);
+                    }}
+                  >
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </span>
+          <span className="selectGroup">
+            <label>Sort by:</label>
+            <div className="customDropdown" ref={sortDropdownRef}>
+              <button
+                type="button"
+                className={"dropdownButton" + (showSortDropdown ? " open" : "")}
+                onClick={() => setShowSortDropdown(v => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={showSortDropdown}
+              >
+                {sortOptions.find(opt => opt.value === sort)?.label}
+                <span className="selectChevron">
+                  <img src="/chevron-down.svg" alt="Chevron" width={22} height={22} />
+                </span>
+              </button>
+              <ul
+                className={"dropdownList" + (showSortDropdown ? " show" : "")}
+                tabIndex={-1}
+                role="listbox"
+                style={{ pointerEvents: showSortDropdown ? 'auto' : 'none' }}
+              >
+                {sortOptions.map(opt => (
+                  <li
+                    key={opt.value}
+                    className={opt.value === sort ? "selected" : ""}
+                    role="option"
+                    aria-selected={opt.value === sort}
+                    onClick={() => {
+                      setSort(opt.value);
+                      setShowSortDropdown(false);
+                    }}
+                  >
+                    {opt.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </span>
         </div>
       </div>
       {/* Cards grid displaying ideas */}
@@ -117,14 +210,18 @@ export default function IdeasList() {
       </div>
       {/* Pagination controls */}
       <div className="pagination">
-        <button disabled={page === 1} onClick={() => setPage(1)}>{'<<'}</button>
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>{'<'}</button>
+        <button className="paginationNav" disabled={page === 1} onClick={() => setPage(1)} aria-label="First page">
+          &laquo;
+        </button>
+        <button className="paginationNav" disabled={page === 1} onClick={() => setPage(page - 1)} aria-label="Previous page">
+          &lsaquo;
+        </button>
         {Array.from({ length: Math.min(5, Math.ceil(total / size)) }, (_, i) => {
           const pageNum = i + 1;
           return (
             <button
               key={pageNum}
-              className={page === pageNum ? 'activePage' : ''}
+              className={page === pageNum ? 'activePage' : 'pageButton'}
               onClick={() => setPage(pageNum)}
             >
               {pageNum}
@@ -132,8 +229,12 @@ export default function IdeasList() {
           );
         })}
         {Math.ceil(total / size) > 5 && <span className="paginationEllipsis">...</span>}
-        <button disabled={page === Math.ceil(total / size)} onClick={() => setPage(page + 1)}>{'>'}</button>
-        <button disabled={page === Math.ceil(total / size)} onClick={() => setPage(Math.ceil(total / size))}>{'>>'}</button>
+        <button className="paginationNav" disabled={page === Math.ceil(total / size)} onClick={() => setPage(page + 1)} aria-label="Next page">
+          &rsaquo;
+        </button>
+        <button className="paginationNav" disabled={page === Math.ceil(total / size)} onClick={() => setPage(Math.ceil(total / size))} aria-label="Last page">
+          &raquo;
+        </button>
       </div>
     </div>
   );
